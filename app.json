@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "digital-detox-game",
+    "slug": "digital-detox-game",
+    "version": "1.0.0",
+    "description": "A Gamified Digital Detox App. Grow your pet by staying focused!",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#4A90E2",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.digitaldetox.game"
+    },
+    "android": {
+      "package": "com.digitaldetox.game",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

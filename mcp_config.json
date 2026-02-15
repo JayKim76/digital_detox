@@ -1,0 +1,12 @@
+{
+    "mcpServers": {
+        "notebooklm-mcp": {
+            "command": "uv",
+            "args": [
+                "tool",
+                "run",
+                "notebooklm-mcp"
+            ]
+        }
+    }
+}
