@@ -2,81 +2,68 @@ import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Button, Alert, SafeAreaView, TouchableOpacity, Animated, Image, Modal, FlatList } from 'react-native';
 import { useGameStore } from '../store/useGameStore';
 import { DetoxTimer } from '../components/DetoxTimer';
+import { PetAvatar } from '../components/PetAvatar';
 import * as ImagePicker from 'expo-image-picker';
-import { Camera, Trash2, Backpack, Utensils } from 'lucide-react-native';
+import { Camera, Trash2, Backpack, Utensils, BookOpen } from 'lucide-react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { PET_SPECIES_DATA, EvolutionStage } from '../types/game';
 import { BackgroundLayout } from '../components/BackgroundLayout';
 import { AmbiencePlayer } from '../components/AmbiencePlayer';
 import { SHOP_ITEMS, Item } from '../data/items';
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-const getPetEmoji = (level: number) => {
-    if (level < 5) return '🥚';
-    if (level < 10) return '🐣';
-    if (level < 20) return '🐱';
-    if (level < 30) return '🐯';
-    if (level < 50) return '🦁';
-    return '🐲'; // Ultimate Pet
-};
-
-const getPetGrowth = (level: number) => {
-    // Stage 1: Baby / Egg (Incubating)
-    if (level < 5) return {
+// Helper for growth visual style (reusing old logic for container style, but emoji comes from data)
+const getPetGrowth = (level: number, stage: EvolutionStage) => {
+    // Stage 1: Egg
+    if (stage === 'egg') return {
         containerStyle: {
-            width: 100, height: 100, borderRadius: 50, // Compact
+            width: 100, height: 100, borderRadius: 50,
             borderWidth: 3, borderColor: '#FFD1DC', borderStyle: 'dotted' as 'dotted',
             opacity: 0.8,
         },
         imageStyle: { borderRadius: 50, opacity: 0.7 },
         blurRadius: 1.5,
-        overlay: '🍼',
+        overlay: '❓',
         overlayStyle: { bottom: 0, right: 0, fontSize: 24 }
     };
 
-    // Stage 2: Child (Awakening)
-    if (level < 10) return {
+    // Stage 2: Puppy
+    if (stage === 'puppy') return {
         containerStyle: {
-            width: 120, height: 120, borderRadius: 25, // Compact
+            width: 120, height: 120, borderRadius: 25,
             borderWidth: 3, borderColor: '#FFF',
             elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84,
         },
         imageStyle: { borderRadius: 22 },
         blurRadius: 0,
-        overlay: '🧢',
+        overlay: '🦴',
         overlayStyle: { top: -10, left: -5, fontSize: 32, transform: [{ rotate: '-15deg' }] }
     };
 
-    // Stage 3: Teen (Growth)
-    if (level < 20) return {
-        containerStyle: {
-            width: 140, height: 140, borderRadius: 18, // Compact
-            borderWidth: 3, borderColor: '#2196F3',
-            elevation: 8, shadowColor: '#2196F3', shadowOpacity: 0.4,
-        },
-        imageStyle: { borderRadius: 15 },
-        blurRadius: 0,
-        overlay: '🎧',
-        overlayStyle: { top: 30, right: -15, fontSize: 40, transform: [{ rotate: '15deg' }] }
-    };
-
-    // Stage 4: Master (Ultimate Form)
+    // Stage 3: Adult
     return {
         containerStyle: {
-            width: 150, height: 150, borderRadius: 8, // Compact
+            width: 150, height: 150, borderRadius: 8,
             borderWidth: 4, borderColor: '#FFD700',
             elevation: 20, shadowColor: '#FFD700', shadowOpacity: 0.8, shadowRadius: 20,
         },
         imageStyle: { borderRadius: 4 },
         blurRadius: 0,
-        overlay: '👑',
+        overlay: '🏆',
         overlayStyle: { top: -25, alignSelf: 'center' as 'center', fontSize: 45 }
     };
 };
 
+
+
 export const HomeScreen = ({ navigation }: HomeScreenProps) => {
-    const { coins, addCoins, level, streak, levelUp, calculateLevelUpCost, customPetUri, setCustomPetUri, mood, setMood, inventory, useItem } = useGameStore();
+    const {
+        coins, addCoins, level, streak, levelUp, calculateLevelUpCost,
+        customPetUri, setCustomPetUri, mood, setMood, inventory, useItem,
+        evolutionStage, currentSpecies, collectAndRestart
+    } = useGameStore();
     const nextLevelCost = calculateLevelUpCost();
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -155,7 +142,7 @@ export const HomeScreen = ({ navigation }: HomeScreenProps) => {
 
     const removeImage = () => setCustomPetUri(null);
 
-    const growth = getPetGrowth(level);
+    const growth = getPetGrowth(level, evolutionStage);
 
     return (
         <BackgroundLayout>
@@ -189,17 +176,31 @@ export const HomeScreen = ({ navigation }: HomeScreenProps) => {
                                         </TouchableOpacity>
                                     </View>
                                 ) : (
-                                    <Text style={styles.petEmoji}>{getPetEmoji(level)}</Text>
+                                    <PetAvatar
+                                        species={currentSpecies}
+                                        stage={evolutionStage}
+                                        size={growth.containerStyle.width * 0.65}
+                                    />
                                 )}
                             </Animated.View>
 
-                            <Text style={styles.petName}>Level {level} Form</Text>
-                            <Text style={styles.subtitle}>Evolve to unlock new forms!</Text>
+                            <Text style={styles.petName}>
+                                {evolutionStage === 'egg' ? 'Mystery Egg' :
+                                    evolutionStage === 'puppy' ? 'Playful Puppy' :
+                                        PET_SPECIES_DATA[currentSpecies].name}
+                            </Text>
+
+                            {evolutionStage === 'adult' ? (
+                                <TouchableOpacity style={styles.evolveButton} onPress={collectAndRestart}>
+                                    <Text style={styles.evolveButtonText}>Add to Collection & New Egg</Text>
+                                </TouchableOpacity>
+                            ) : (
+                                <Text style={styles.subtitle}>Level {level}</Text>
+                            )}
 
                             <View style={styles.actionRow}>
                                 <TouchableOpacity onPress={pickImage} style={styles.uploadButton}>
                                     <Camera size={16} color="#666" />
-                                    <Text style={styles.uploadText}>{customPetUri ? "Change" : "Upload"}</Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
@@ -208,6 +209,14 @@ export const HomeScreen = ({ navigation }: HomeScreenProps) => {
                                 >
                                     <Backpack size={16} color="#666" />
                                     <Text style={styles.uploadText}>Bag</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={styles.inventoryButtonInline}
+                                    onPress={() => navigation.navigate('Collection')}
+                                >
+                                    <BookOpen size={16} color="#666" />
+                                    <Text style={styles.uploadText}>Dex</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -355,13 +364,7 @@ const styles = StyleSheet.create({
         flex: 1,
         maxHeight: 250,
     },
-    petEmoji: {
-        fontSize: 80,
-        marginBottom: 5,
-        textShadowColor: 'rgba(0,0,0,0.2)',
-        textShadowOffset: { width: 0, height: 10 },
-        textShadowRadius: 20,
-    },
+
     overlayEmoji: { position: 'absolute' },
     petName: {
         fontSize: 18,
@@ -526,4 +529,21 @@ const styles = StyleSheet.create({
         borderRadius: 15,
     },
     passiveText: { color: 'white', fontSize: 12, fontWeight: '700' },
+    evolveButton: {
+        marginTop: 10,
+        backgroundColor: '#FFEB3B',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 25,
+        elevation: 5,
+        shadowColor: '#FBC02D',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+    },
+    evolveButtonText: {
+        color: '#F57F17',
+        fontWeight: '800',
+        fontSize: 14,
+    },
 });

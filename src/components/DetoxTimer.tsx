@@ -69,8 +69,25 @@ export const DetoxTimer = () => {
             );
 
             setMode('SHORT_BREAK');
+        } else if (mode === 'SHORT_BREAK') {
+            // Reward for completing short break
+            const breakDuration = Number(timerSettings.shortBreak);
+            const breakReward = Math.max(1, Math.floor(breakDuration * 0.5)); // Half of focus rate
+            useGameStore.getState().addCoins(breakReward);
+
+            Alert.alert("Break Complete! ☕", `Good rest! You earned ${breakReward} coins.\n\nReady to focus again?`);
+            setMode('FOCUS');
+        } else if (mode === 'LONG_BREAK') {
+            // Reward for completing long break
+            const breakDuration = Number(timerSettings.longBreak);
+            const breakReward = Math.max(1, Math.floor(breakDuration * 0.5)); // Half of focus rate
+            useGameStore.getState().addCoins(breakReward);
+
+            Alert.alert("Long Break Complete! 🌴", `Well rested! You earned ${breakReward} coins.\n\nReady to focus again?`);
+            setMode('FOCUS');
         } else {
-            Alert.alert("Break Over! ☕", "Ready to focus again?");
+            // Fallback for any other mode
+            Alert.alert("Break Over!", "Ready to focus again?");
             setMode('FOCUS');
         }
     }, [mode, timerSettings, completeSession]);

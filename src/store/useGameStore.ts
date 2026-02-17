@@ -3,6 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { Item } from '../data/items';
+import { EvolutionStage, PetSpecies, CollectionEntry, PET_SPECIES_DATA } from '../types/game';
+
 
 interface SessionRecord {
     id: string;
@@ -16,13 +18,22 @@ interface GameState {
     coins: number;
     level: number;
     streak: number;
-    lastFocusDate: string | null; // ISO Date string
-    inventory: Record<string, number>; // ItemId -> Quantity
+    lastFocusDate: string | null;
+    inventory: Record<string, number>;
     history: SessionRecord[];
+    // Removed old customPetUri in favor of new system, but keeping for migration if needed or just replace?
+    // Let's replace 'customPetUri' with the new system, or keep it as an override?
+    // Plan: The new system drives the main avatar. 'customPetUri' can be a "skin" override if we want, or removed.
+    // For now, let's keep it but prioritize the new system in UI if null.
     customPetUri: string | null;
     mood: 'happy' | 'sad' | 'sleeping';
-    timerSettings: { focus: number; shortBreak: number; longBreak: number }; // In Minutes
-    strictMode: boolean; // New Setting
+    timerSettings: { focus: number; shortBreak: number; longBreak: number };
+    strictMode: boolean;
+
+    // New Evolution State
+    evolutionStage: EvolutionStage;
+    currentSpecies: PetSpecies;
+    collection: CollectionEntry[];
 
     // Actions
     addCoins: (amount: number) => void;
@@ -37,13 +48,15 @@ interface GameState {
     setMood: (mood: 'happy' | 'sad' | 'sleeping') => void;
     setTimerSettings: (settings: { focus: number; shortBreak: number; longBreak: number }) => void;
     setStrictMode: (enabled: boolean) => void;
+    evolve: () => void; // Manually trigger evolution animation/state change if needed, or auto in levelUp
+    collectAndRestart: () => void; // Store current adult to collection and reset to egg
 }
 
 export const useGameStore = create<GameState>()(
     persist(
         (set, get) => ({
-            coins: 0,
-            level: 1,
+            coins: 10000, // TEST: Start with coins
+            level: 15, // TEST: Start at Level 15 (Puppy -> Adult soon)
             streak: 0,
             lastFocusDate: null,
             inventory: {},
@@ -52,6 +65,9 @@ export const useGameStore = create<GameState>()(
             mood: 'happy',
             timerSettings: { focus: 25, shortBreak: 5, longBreak: 15 },
             strictMode: false,
+            evolutionStage: 'puppy', // TEST: Start as Puppy
+            currentSpecies: 'shiba', // TEST: Start as Shiba
+            collection: [],
 
             addCoins: (amount) => set((state) => ({ coins: state.coins + amount })),
 
@@ -157,12 +173,64 @@ export const useGameStore = create<GameState>()(
                 const cost = calculateLevelUpCost();
 
                 if (coins >= cost) {
-                    set((state) => ({
-                        coins: state.coins - cost,
-                        level: state.level + 1,
-                        mood: 'happy',
-                    }));
+                    set((state) => {
+                        const newLevel = state.level + 1;
+                        let newStage = state.evolutionStage;
+                        let newSpecies = state.currentSpecies;
+
+                        // Evolution Logic
+                        // Level 6: Egg -> Puppy (Hatch)
+                        if (newLevel === 6 && state.evolutionStage === 'egg') {
+                            newStage = 'puppy';
+                            // Random species (excluding 'unknown')
+                            const speciesKeys = Object.keys(PET_SPECIES_DATA).filter(k => k !== 'unknown') as PetSpecies[];
+                            newSpecies = speciesKeys[Math.floor(Math.random() * speciesKeys.length)];
+                            Alert.alert("Oh?", "The Egg is hatching!");
+                        }
+                        // Level 16: Puppy -> Adult
+                        else if (newLevel === 16 && state.evolutionStage === 'puppy') {
+                            newStage = 'adult';
+                            Alert.alert("Congratulations!", "Your puppy has grown into an adult dog!");
+                        }
+
+                        return {
+                            coins: state.coins - cost,
+                            level: newLevel,
+                            evolutionStage: newStage,
+                            currentSpecies: newSpecies,
+                            mood: 'happy',
+                        };
+                    });
                 }
+            },
+
+            evolve: () => {
+                // Manual trigger if needed, or dev tool
+                const { level, evolutionStage, currentSpecies } = get();
+                // Logic already in levelUp, but could be separated if we want animations to trigger it
+            },
+
+            collectAndRestart: () => {
+                const { currentSpecies, evolutionStage, collection } = get();
+                if (evolutionStage !== 'adult') return;
+
+                const newEntry: CollectionEntry = {
+                    id: Date.now().toString(),
+                    species: currentSpecies,
+                    name: PET_SPECIES_DATA[currentSpecies].name,
+                    obtainedDate: new Date().toISOString(),
+                    description: PET_SPECIES_DATA[currentSpecies].description
+                };
+
+                set((state) => ({
+                    collection: [...state.collection, newEntry],
+                    level: 1,
+                    evolutionStage: 'egg',
+                    currentSpecies: 'unknown',
+                    coins: state.coins, // Keep coins? Yes.
+                    mood: 'happy'
+                }));
+                Alert.alert("New Friend!", "Dog added to your collection. Here is a new egg!");
             },
 
             incrementStreak: () => set((state) => ({ streak: state.streak + 1 })),
@@ -185,7 +253,7 @@ export const useGameStore = create<GameState>()(
             },
         }),
         {
-            name: 'digital-detox-storage',
+            name: 'digital-detox-storage-v2', // Changed name to force reset (or use versioning if supported)
             storage: createJSONStorage(() => AsyncStorage),
             merge: (persistedState: any, currentState: GameState) => {
                 return {
@@ -196,6 +264,9 @@ export const useGameStore = create<GameState>()(
                         ...(persistedState as GameState)?.timerSettings,
                     },
                     strictMode: (persistedState as GameState)?.strictMode ?? currentState.strictMode,
+                    evolutionStage: (persistedState as GameState)?.evolutionStage ?? currentState.evolutionStage,
+                    currentSpecies: (persistedState as GameState)?.currentSpecies ?? currentState.currentSpecies,
+                    collection: (persistedState as GameState)?.collection ?? currentState.collection,
                 };
             },
         }

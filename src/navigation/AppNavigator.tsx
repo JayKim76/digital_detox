@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ShopScreen } from '../screens/ShopScreen';
 import { StatsScreen } from '../screens/StatsScreen';
+import { CollectionScreen } from '../screens/CollectionScreen';
 import { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -19,6 +20,7 @@ export const AppNavigator = () => {
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="Shop" component={ShopScreen} />
             <Stack.Screen name="Stats" component={StatsScreen} />
+            <Stack.Screen name="Collection" component={CollectionScreen} />
         </Stack.Navigator>
     );
 };
