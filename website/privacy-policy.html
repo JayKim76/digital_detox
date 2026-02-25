@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Digital Detox Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --text-primary: #e8e8f0;
+            --text-secondary: #9a9ab8;
+            --accent: #7c5cff;
+            --accent-glow: rgba(124, 92, 255, 0.3);
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        .background-globes {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .globe {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+        }
+
+        .globe-1 {
+            width: 500px; height: 500px;
+            background: #7c5cff;
+            top: -10%; left: -10%;
+        }
+
+        .globe-2 {
+            width: 400px; height: 400px;
+            background: #00d2ff;
+            bottom: 10%; right: -5%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        .page-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #7c5cff, #00d2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .last-updated {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 40px;
+        }
+
+        .policy-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            transition: border-color 0.3s;
+        }
+
+        .policy-section:hover {
+            border-color: var(--accent-glow);
+        }
+
+        .policy-section h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .policy-section p,
+        .policy-section li {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.9;
+        }
+
+        .policy-section ul {
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .policy-section li {
+            margin-bottom: 6px;
+        }
+
+        .highlight-box {
+            background: rgba(124, 92, 255, 0.08);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 12px 12px 0;
+            padding: 16px 20px;
+            margin: 16px 0;
+        }
+
+        .highlight-box p {
+            color: var(--text-primary) !important;
+            font-weight: 400;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 600px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+            .policy-section {
+                padding: 20px;
+            }
+            .container {
+                padding: 24px 16px 60px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-globes">
+        <div class="globe globe-1"></div>
+        <div class="globe globe-2"></div>
+    </div>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Home</a>
+
+        <h1 class="page-title">Privacy Policy</h1>
+        <p class="last-updated">Last updated: February 25, 2026</p>
+
+        <div class="policy-section">
+            <h2>1. Introduction</h2>
+            <p>Welcome to <strong>Digital Detox Game</strong> ("we," "our," or "us"). We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our mobile application ("App").</p>
+            <div class="highlight-box">
+                <p>We do NOT collect, store, or share any personal information. Your data stays on your device.</p>
+            </div>
+        </div>
+
+        <div class="policy-section">
+            <h2>2. Information We Collect</h2>
+            <p>Digital Detox Game is designed with privacy in mind. We do <strong>not</strong> collect:</p>
+            <ul>
+                <li>Personal identification information (name, email, phone number)</li>
+                <li>Location data</li>
+                <li>Contact lists or address books</li>
+                <li>Photos, videos, or media files</li>
+                <li>Browsing history or search queries</li>
+            </ul>
+            <p style="margin-top: 12px;">All app data (focus session history, pet progress, coin balance, settings) is stored <strong>locally on your device</strong> using AsyncStorage and is never transmitted to external servers.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>3. In-App Purchases</h2>
+            <p>Our App offers optional in-app purchases through <strong>Google Play Billing</strong>. Purchase transactions are handled entirely by Google Play and are subject to <a href="https://policies.google.com/privacy" style="color: var(--accent);">Google's Privacy Policy</a>. We do not collect or store any payment information, credit card details, or billing addresses.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>4. Third-Party Services</h2>
+            <p>The App may use the following third-party services:</p>
+            <ul>
+                <li><strong>Google Play Services</strong> — for app distribution and in-app purchases</li>
+                <li><strong>RevenueCat</strong> — for managing in-app purchase subscriptions (anonymous usage only, no personal data collected)</li>
+                <li><strong>Expo / React Native</strong> — the development framework used to build the App</li>
+            </ul>
+            <p style="margin-top: 12px;">These services may collect anonymous, aggregated usage statistics. Please refer to their respective privacy policies for more details.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>5. Children's Privacy</h2>
+            <p>Digital Detox Game is suitable for users of all ages. We do not knowingly collect any personal information from children under the age of 13. Since no personal data is collected from any user, there is no risk of children's data being compromised.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>6. Data Security</h2>
+            <p>Since all data is stored locally on your device, the security of your data is managed by your device's built-in security features (screen lock, encryption, etc.). We recommend keeping your device's operating system up to date to benefit from the latest security patches.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>7. Changes to This Privacy Policy</h2>
+            <p>We may update this Privacy Policy from time to time. Any changes will be reflected on this page with an updated "Last updated" date. We encourage you to review this Privacy Policy periodically for any changes.</p>
+        </div>
+
+        <div class="policy-section">
+            <h2>8. Contact Us</h2>
+            <p>If you have any questions or concerns about this Privacy Policy or our practices, please contact us at:</p>
+            <div class="highlight-box">
+                <p>📧 Email: <a href="mailto:digitaldetox.game@gmail.com" style="color: var(--accent);">digitaldetox.game@gmail.com</a></p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Digital Detox Game. All Rights Reserved.</p>
+    </footer>
+</body>
+
+</html>
