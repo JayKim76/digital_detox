@@ -15,16 +15,16 @@ export const SHOP_ITEMS: Item[] = [
         name: 'Canned Tuna 🐟',
         type: 'food',
         cost: 50,
-        description: 'Tasty snack. Restore 50 Coins.',
-        value: 50
+        description: 'Tasty snack. Restore 35 Coins.',
+        value: 35
     },
     {
         id: 'food_premium',
         name: 'Premium Sashimi 🍣',
         type: 'food',
         cost: 150,
-        description: 'Luxury meal. Restore 200 Coins!',
-        value: 200
+        description: 'Luxury meal. Restore 120 Coins!',
+        value: 120
     },
     {
         id: 'toy_yarn',
@@ -32,7 +32,7 @@ export const SHOP_ITEMS: Item[] = [
         type: 'food', // Treated as consumable for "Playing"
         cost: 30,
         description: 'Play time! Small happiness boost.',
-        value: 30
+        value: 20
     },
 
     // Accessories (Passives)

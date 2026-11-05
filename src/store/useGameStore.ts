@@ -55,8 +55,8 @@ interface GameState {
 export const useGameStore = create<GameState>()(
     persist(
         (set, get) => ({
-            coins: 10000, // TEST: Start with coins
-            level: 15, // TEST: Start at Level 15 (Puppy -> Adult soon)
+            coins: 0,
+            level: 1,
             streak: 0,
             lastFocusDate: null,
             inventory: {},
@@ -65,8 +65,8 @@ export const useGameStore = create<GameState>()(
             mood: 'happy',
             timerSettings: { focus: 25, shortBreak: 5, longBreak: 15 },
             strictMode: false,
-            evolutionStage: 'puppy', // TEST: Start as Puppy
-            currentSpecies: 'shiba', // TEST: Start as Shiba
+            evolutionStage: 'egg',
+            currentSpecies: 'unknown',
             collection: [],
 
             addCoins: (amount) => set((state) => ({ coins: state.coins + amount })),
@@ -104,10 +104,14 @@ export const useGameStore = create<GameState>()(
                 const currentQty = inventory[item.id] || 0;
 
                 if (currentQty > 0 && item.type === 'food') {
-                    // Consume effect
+                    // Consume effect. Guard: a consumable must never return
+                    // more coins than its purchase cost, otherwise buy->use
+                    // becomes an infinite coin loop.
                     if (item.value) {
-                        // Restore coins (Energy)
-                        addCoins(item.value);
+                        const grant = Math.min(item.value, Math.max(0, item.cost - 1));
+                        if (grant > 0) {
+                            addCoins(grant);
+                        }
                     }
 
                     set((state) => ({
@@ -253,7 +257,7 @@ export const useGameStore = create<GameState>()(
             },
         }),
         {
-            name: 'digital-detox-storage-v2', // Changed name to force reset (or use versioning if supported)
+            name: 'digital-detox-storage-v3', // v3: reset persisted TEST initial state (coins/level/stage) from pre-release builds
             storage: createJSONStorage(() => AsyncStorage),
             merge: (persistedState: any, currentState: GameState) => {
                 return {
