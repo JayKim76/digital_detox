@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, AppState, AppStateStatus, Alert, TouchableOpacity, Modal, TextInput, Switch } from 'react-native';
 import { useGameStore } from '../store/useGameStore';
+import { DetoxMonitor } from '../services/DetoxMonitor';
 import { Settings, X } from 'lucide-react-native';
 
 type TimerMode = 'FOCUS' | 'SHORT_BREAK' | 'LONG_BREAK';
@@ -106,7 +107,7 @@ export const DetoxTimer = () => {
     const appState = useRef(AppState.currentState);
 
     useEffect(() => {
-        const handleAppStateChange = (nextAppState: AppStateStatus) => {
+        const handleAppStateChange = async (nextAppState: AppStateStatus) => {
             if (mode === 'FOCUS' && isActive && endTime) {
                 // Strict Mode Handling
                 if (strictMode) {
@@ -117,17 +118,34 @@ export const DetoxTimer = () => {
                     } else if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
                         // Returned to foreground
                         if (backgroundTime.current) {
-                            const diff = Date.now() - backgroundTime.current;
+                            const awayStart = backgroundTime.current;
+                            const diff = Date.now() - awayStart;
                             console.log("App returned. Diff:", diff);
 
-                            if (diff > 10000) { // 10 seconds Grace Period
+                            // Real usage data (Android UsageStats) tells us
+                            // which app was actually used while away. When it
+                            // is unavailable, fall back to total away time.
+                            const distraction = await DetoxMonitor.getDistractionSince(awayStart);
+                            const failed = distraction
+                                ? distraction.foregroundMs > 10000
+                                : diff > 10000; // 10 seconds Grace Period
+
+                            if (failed) {
                                 // Failed!
                                 setIsActive(false);
                                 setEndTime(null);
                                 resetStreak();
                                 backgroundTime.current = null;
-                                Alert.alert("Session Failed 🚫", "You left the app for too long in Strict Mode!\nStreak reset.");
+                                Alert.alert(
+                                    "Session Failed 🚫",
+                                    distraction
+                                        ? `You used ${distraction.label} for ${Math.round(distraction.foregroundMs / 1000)}s in Strict Mode!\nStreak reset.`
+                                        : "You left the app for too long in Strict Mode!\nStreak reset."
+                                );
                                 return; // Stop processing
+                            } else if (distraction) {
+                                // Warning, naming the app that was peeked at
+                                Alert.alert("Careful! ⚠️", `You peeked at ${distraction.label}. Keep the app open to stay focused!`);
                             } else {
                                 // Warning
                                 Alert.alert("Careful! ⚠️", "Keep the app open to stay focused!");
@@ -205,6 +223,24 @@ export const DetoxTimer = () => {
             // Start
             setIsActive(true);
             setEndTime(Date.now() + timeLeft * 1000);
+
+            // Strict Mode judges real app usage on Android, which needs the
+            // Usage access permission. Offer to grant it (once per start)
+            // instead of silently judging by away time only.
+            if (mode === 'FOCUS' && strictMode && DetoxMonitor.isNativeAvailable()) {
+                DetoxMonitor.checkPermission().then((granted) => {
+                    if (!granted) {
+                        Alert.alert(
+                            "Usage Access Needed",
+                            "Allow usage access so Strict Mode can see which apps interrupt your focus.",
+                            [
+                                { text: "Later", style: "cancel" },
+                                { text: "Open Settings", onPress: () => { DetoxMonitor.requestPermission(); } },
+                            ]
+                        );
+                    }
+                });
+            }
         }
     };
 

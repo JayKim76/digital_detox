@@ -1,0 +1,11 @@
+plugins {
+    id 'com.android.library'
+    id 'expo-module-gradle-plugin'
+}
+
+android {
+    namespace 'com.digitaldetox.detoxmonitor'
+    defaultConfig {
+        minSdkVersion 24
+    }
+}
