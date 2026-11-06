@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, ImageStyle, TextStyle, ViewStyle } from 'react-native';
-import { EvolutionStage, PetSpecies, PET_SPECIES_DATA } from '../types/game';
+import { EvolutionStage, PetSpecies, PET_SPECIES_DATA, EGG_IMAGE } from '../types/game';
 
 interface PetAvatarProps {
     species: PetSpecies;
@@ -17,7 +17,7 @@ export const PetAvatar: React.FC<PetAvatarProps> = ({ species, stage, size = 100
     let imageSource = null;
     if (stage === 'puppy') imageSource = speciesData.puppyImage;
     if (stage === 'adult') imageSource = speciesData.adultImage;
-    if (isEgg) imageSource = null; // Egg image not yet defined in data, forcing emoji for now
+    if (isEgg) imageSource = EGG_IMAGE;
 
     // Determine emoji fallback
     let emoji = speciesData.emoji;
